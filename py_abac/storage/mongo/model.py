@@ -3,10 +3,11 @@
 """
 
 import json
+from typing import Optional
 
 from ..utils import get_sub_wildcard_queries, get_all_wildcard_queries
-from ...policy import Policy
-from ...policy.targets import Targets
+from ..._policy import Policy
+from ..._policy.targets import Targets
 
 
 class PolicyModel:
@@ -18,7 +19,7 @@ class PolicyModel:
         :param tags: tags for target based filtering
     """
 
-    def __init__(self, _id: str, policy_str: str, tags: dict = None):
+    def __init__(self, _id: str, policy_str: str, tags: Optional[dict] = None):
         self._id = _id
         self.policy_str = policy_str
         self.tags = tags

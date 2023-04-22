@@ -5,7 +5,7 @@
 import pytest
 
 from py_abac.pdp import PDP, EvaluationAlgorithm
-from py_abac.policy import Policy
+from py_abac._policy import Policy
 from py_abac.provider.base import AttributeProvider
 from py_abac.request import AccessRequest
 from py_abac.storage.redis import RedisStorage
@@ -14,32 +14,51 @@ from ..test_storage.test_redis import create_client
 # Pytest mark for module
 pytestmark = [pytest.mark.redis, pytest.mark.integration]
 
-HASH_KEY = 'py_abac_policies_test'
+HASH_KEY = "py_abac_policies_test"
 SUBJECT_IDS = {"Max": "user:1", "Nina": "user:2", "Ben": "user:3", "Henry": "user:4"}
 POLICIES = [
     {
         "uid": "1",
         "description": "Max, Nina, Ben, Henry are allowed to create, delete, get "
-                       "the resources only if the client IP matches.",
+        "the resources only if the client IP matches.",
         "effect": "allow",
         "rules": {
-            "subject": [{"$.name": {"condition": "Equals", "value": "Max"}},
-                        {"$.name": {"condition": "Equals", "value": "Nina"}},
-                        {"$.name": {"condition": "AnyOf",
-                                    "values": [{"condition": "Equals", "value": "Ben"},
-                                               {"condition": "Equals", "value": "Henry"}]}}],
-            "resource": {"$.name": {"condition": "AnyOf",
-                                    "values": [{"condition": "Equals", "value": "myrn:example.com:resource:123"},
-                                               {"condition": "Equals", "value": "myrn:example.com:resource:345"},
-                                               {"condition": "RegexMatch", "value": "myrn:something:foo:.*"}]}},
-            "action": [{"$.method": {"condition": "AnyOf",
-                                     "values": [{"condition": "Equals", "value": "create"},
-                                                {"condition": "Equals", "value": "delete"}]}},
-                       {"$.method": {"condition": "Equals", "value": "get"}}],
-            "context": {"$.ip": {"condition": "CIDR", "value": "127.0.0.1/32"}}
+            "subject": [
+                {"$.name": {"condition": "Equals", "value": "Max"}},
+                {"$.name": {"condition": "Equals", "value": "Nina"}},
+                {
+                    "$.name": {
+                        "condition": "AnyOf",
+                        "values": [{"condition": "Equals", "value": "Ben"}, {"condition": "Equals", "value": "Henry"}],
+                    }
+                },
+            ],
+            "resource": {
+                "$.name": {
+                    "condition": "AnyOf",
+                    "values": [
+                        {"condition": "Equals", "value": "myrn:example.com:resource:123"},
+                        {"condition": "Equals", "value": "myrn:example.com:resource:345"},
+                        {"condition": "RegexMatch", "value": "myrn:something:foo:.*"},
+                    ],
+                }
+            },
+            "action": [
+                {
+                    "$.method": {
+                        "condition": "AnyOf",
+                        "values": [
+                            {"condition": "Equals", "value": "create"},
+                            {"condition": "Equals", "value": "delete"},
+                        ],
+                    }
+                },
+                {"$.method": {"condition": "Equals", "value": "get"}},
+            ],
+            "context": {"$.ip": {"condition": "CIDR", "value": "127.0.0.1/32"}},
         },
         "targets": {},
-        "priority": 0
+        "priority": 0,
     },
     {
         "uid": "2",
@@ -49,10 +68,10 @@ POLICIES = [
             "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
             "resource": {"$.name": {"condition": "RegexMatch", "value": ".*"}},
             "action": {"$.method": {"condition": "Equals", "value": "update"}},
-            "context": {}
+            "context": {},
         },
         "targets": {"subject_id": SUBJECT_IDS["Max"]},
-        "priority": 0
+        "priority": 0,
     },
     {
         "uid": "3",
@@ -62,10 +81,10 @@ POLICIES = [
             "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
             "resource": {"$.name": {"condition": "RegexMatch", "value": ".*"}},
             "action": {"$.method": {"condition": "Equals", "value": "print"}},
-            "context": {}
+            "context": {},
         },
         "targets": {"subject_id": SUBJECT_IDS["Max"]},
-        "priority": 0
+        "priority": 0,
     },
     {
         "uid": "4",
@@ -77,7 +96,7 @@ POLICIES = [
             "action": [],
             "context": [],
         },
-        "targets": {}
+        "targets": {},
     },
     {
         "uid": "5",
@@ -87,10 +106,10 @@ POLICIES = [
             "subject": {"$.name": {"condition": "Equals", "value": "Nina"}},
             "resource": {"$.name": {"condition": "RegexMatch", "value": r"\d+"}},
             "action": {"$.method": {"condition": "Equals", "value": "update"}},
-            "context": {}
+            "context": {},
         },
         "targets": {"subject_id": SUBJECT_IDS["Nina"]},
-        "priority": 0
+        "priority": 0,
     },
     {
         "uid": "6",
@@ -100,24 +119,26 @@ POLICIES = [
             "subject": {"$.name": {"condition": "Equals", "value": "Nina"}},
             "resource": {"$.name": {"condition": "RegexMatch", "value": r"\d+"}},
             "action": {"$.method": {"condition": "Equals", "value": "update"}},
-            "context": {"$.id": {"condition": "Exists"}}
+            "context": {"$.id": {"condition": "Exists"}},
         },
         "targets": {"subject_id": SUBJECT_IDS["Nina"]},
-        "priority": 0
+        "priority": 0,
     },
     {
         "uid": "7",
         "description": "Ben is allowed to print any resource when logged in with gmail account",
         "effect": "allow",
         "rules": {
-            "subject": {"$.name": {"condition": "Equals", "value": "Ben"},
-                        "$.email": {"condition": "Equals", "value": "ben@gmail.com"}},
+            "subject": {
+                "$.name": {"condition": "Equals", "value": "Ben"},
+                "$.email": {"condition": "Equals", "value": "ben@gmail.com"},
+            },
             "resource": {"$.name": {"condition": "RegexMatch", "value": ".*"}},
             "action": {"$.method": {"condition": "Equals", "value": "print"}},
-            "context": {}
+            "context": {},
         },
         "targets": {"subject_id": SUBJECT_IDS["Ben"]},
-        "priority": 0
+        "priority": 0,
     },
     {
         "uid": "8",
@@ -127,10 +148,10 @@ POLICIES = [
             "subject": {"$.roles": {"condition": "AnyIn", "values": ["employee"]}},
             "resource": {"$.name": {"condition": "RegexMatch", "value": "doc:confidential:.*"}},
             "action": {"$.method": {"condition": "RegexMatch", "value": ".*"}},
-            "context": {}
+            "context": {},
         },
         "targets": {},
-        "priority": 0
+        "priority": 0,
     },
     {
         "uid": "9",
@@ -140,16 +161,15 @@ POLICIES = [
             "subject": {"$.roles": {"condition": "AnyIn", "values": ["manager"]}},
             "resource": {"$.name": {"condition": "RegexMatch", "value": "doc:confidential:sales:.*"}},
             "action": {"$.method": {"condition": "Equals", "value": "get"}},
-            "context": {}
+            "context": {},
         },
         "targets": {},
-        "priority": 1
+        "priority": 1,
     },
 ]
 
 
 class EmailsAttributeProvider(AttributeProvider):
-
     def get_attribute_value(self, ace: str, attribute_path: str, ctx):
         if ace == "subject" and attribute_path == "$.email":
             if ctx.get_attribute_value(ace, "$.name") == "Ben":
@@ -167,717 +187,711 @@ def st():
     client.close()
 
 
-@pytest.mark.parametrize('desc, request_json, should_be_allowed', [
-    (
-            'Empty inquiry carries no information, so nothing is allowed, even empty Policy #4',
-            {
-                "subject": {"id": ""},
-                "resource": {"id": ""},
-                "action": {"id": ""},
-                "context": {}
-            },
+@pytest.mark.parametrize(
+    "desc, request_json, should_be_allowed",
+    [
+        (
+            "Empty inquiry carries no information, so nothing is allowed, even empty Policy #4",
+            {"subject": {"id": ""}, "resource": {"id": ""}, "action": {"id": ""}, "context": {}},
             False,
-    ),
-    (
-            'Max is allowed to update anything',
+        ),
+        (
+            "Max is allowed to update anything",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'Max is allowed to update anything, even empty one',
+        ),
+        (
+            "Max is allowed to update anything, even empty one",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'Max, but not max is allowed to update anything (case-sensitive comparison)',
+        ),
+        (
+            "Max, but not max is allowed to update anything (case-sensitive comparison)",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "max"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Max is not allowed to print anything',
+        ),
+        (
+            "Max is not allowed to print anything",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Max is not allowed to print anything, even if no resource is given',
+        ),
+        (
+            "Max is not allowed to print anything, even if no resource is given",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Max is not allowed to print anything, even an empty resource',
+        ),
+        (
+            "Max is not allowed to print anything, even an empty resource",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #1 matches and has allow-effect',
+        ),
+        (
+            "Policy #1 matches and has allow-effect",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {"ip": "127.0.0.1"}
+                "context": {"ip": "127.0.0.1"},
             },
             True,
-    ),
-    (
-            'Policy #1 matches - Henry is listed in the allowed subjects regexp',
+        ),
+        (
+            "Policy #1 matches - Henry is listed in the allowed subjects regexp",
             {
                 "subject": {"id": SUBJECT_IDS["Henry"], "attributes": {"name": "Henry"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {"ip": "127.0.0.1"}
+                "context": {"ip": "127.0.0.1"},
             },
             True,
-    ),
-    (
-            'Policy #1 does not match - context was not found (misspelled)',
+        ),
+        (
+            "Policy #1 does not match - context was not found (misspelled)",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {"IP": "127.0.0.1"}
+                "context": {"IP": "127.0.0.1"},
             },
             False,
-    ),
-    (
-            'Policy #1 does not match - context is missing',
+        ),
+        (
+            "Policy #1 does not match - context is missing",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #1 does not match - context says IP is not in the allowed range',
+        ),
+        (
+            "Policy #1 does not match - context says IP is not in the allowed range",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {"ip": "0.0.0.0"}
+                "context": {"ip": "0.0.0.0"},
             },
             False,
-    ),
-    (
-            'Policy #5 does not match - action is update, but subjects does not match',
+        ),
+        (
+            "Policy #5 does not match - action is update, but subjects does not match",
             {
                 "subject": {"id": "user:10", "attributes": {"name": "Sarah"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #5 does not match - action is update, subject is Nina, but resource-name is not digits',
+        ),
+        (
+            "Policy #5 does not match - action is update, subject is Nina, but resource-name is not digits",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "abcd"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #5 should match',
+        ),
+        (
+            "Policy #5 should match",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "00678"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
+        ),
+        (
             'Policy #5 and #6 should match - usage of "id" in context. Policy #6 overrides.',
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "00678"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {"id": "3fkap-bmvci-rmvp0"}
+                "context": {"id": "3fkap-bmvci-rmvp0"},
             },
             False,
-    ),
-    (
-            'Policy #5 should match and not #6 - usage of different context',
+        ),
+        (
+            "Policy #5 should match and not #6 - usage of different context",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "00678"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {"name": "test"}
+                "context": {"name": "test"},
             },
             True,
-    ),
-    (
-            'Ben is allowed to print anything when logged in with gmail',
+        ),
+        (
+            "Ben is allowed to print anything when logged in with gmail",
             {
                 "subject": {"id": SUBJECT_IDS["Ben"], "attributes": {"name": "Ben"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'Ben is not allowed to print anything when logged in with yahoo',
+        ),
+        (
+            "Ben is not allowed to print anything when logged in with yahoo",
             {
                 "subject": {"id": SUBJECT_IDS["Ben"], "attributes": {"name": "Ben", "email": "ben@yahoo.com"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'A user with employee role is not allowed to view classified documents for sales',
+        ),
+        (
+            "A user with employee role is not allowed to view classified documents for sales",
             {
                 "subject": {"id": "", "attributes": {"roles": ["employee"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:sales:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'A user with manager role is allowed to view classified documents for sales',
+        ),
+        (
+            "A user with manager role is allowed to view classified documents for sales",
             {
                 "subject": {"id": "", "attributes": {"roles": ["manager"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:sales:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'A user with manager role is not allowed to view other classified documents',
+        ),
+        (
+            "A user with manager role is not allowed to view other classified documents",
             {
                 "subject": {"id": "", "attributes": {"roles": ["manager"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:products:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Deny override algorithm blocks user with both manager and employee roles '
-            'to view classified documents for sales',
+        ),
+        (
+            "Deny override algorithm blocks user with both manager and employee roles "
+            "to view classified documents for sales",
             {
                 "subject": {"id": "", "attributes": {"roles": ["employee", "manager"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:sales:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-])
+        ),
+    ],
+)
 def test_is_allowed_deny_overrides(st, desc, request_json, should_be_allowed):
     pdp = PDP(st, EvaluationAlgorithm.DENY_OVERRIDES, [EmailsAttributeProvider()])
     request = AccessRequest.from_json(request_json)
     assert should_be_allowed == pdp.is_allowed(request)
 
 
-@pytest.mark.parametrize('desc, request_json, should_be_allowed', [
-    (
-            'Empty inquiry carries no information, so nothing is allowed, even empty Policy #4',
-            {
-                "subject": {"id": ""},
-                "resource": {"id": ""},
-                "action": {"id": ""},
-                "context": {}
-            },
+@pytest.mark.parametrize(
+    "desc, request_json, should_be_allowed",
+    [
+        (
+            "Empty inquiry carries no information, so nothing is allowed, even empty Policy #4",
+            {"subject": {"id": ""}, "resource": {"id": ""}, "action": {"id": ""}, "context": {}},
             False,
-    ),
-    (
-            'Max is allowed to update anything',
+        ),
+        (
+            "Max is allowed to update anything",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'Max is allowed to update anything, even empty one',
+        ),
+        (
+            "Max is allowed to update anything, even empty one",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'Max, but not max is allowed to update anything (case-sensitive comparison)',
+        ),
+        (
+            "Max, but not max is allowed to update anything (case-sensitive comparison)",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "max"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Max is not allowed to print anything',
+        ),
+        (
+            "Max is not allowed to print anything",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Max is not allowed to print anything, even if no resource is given',
+        ),
+        (
+            "Max is not allowed to print anything, even if no resource is given",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Max is not allowed to print anything, even an empty resource',
+        ),
+        (
+            "Max is not allowed to print anything, even an empty resource",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #1 matches and has allow-effect',
+        ),
+        (
+            "Policy #1 matches and has allow-effect",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {"ip": "127.0.0.1"}
+                "context": {"ip": "127.0.0.1"},
             },
             True,
-    ),
-    (
-            'Policy #1 matches - Henry is listed in the allowed subjects regexp',
+        ),
+        (
+            "Policy #1 matches - Henry is listed in the allowed subjects regexp",
             {
                 "subject": {"id": SUBJECT_IDS["Henry"], "attributes": {"name": "Henry"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {"ip": "127.0.0.1"}
+                "context": {"ip": "127.0.0.1"},
             },
             True,
-    ),
-    (
-            'Policy #1 does not match - context was not found (misspelled)',
+        ),
+        (
+            "Policy #1 does not match - context was not found (misspelled)",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {"IP": "127.0.0.1"}
+                "context": {"IP": "127.0.0.1"},
             },
             False,
-    ),
-    (
-            'Policy #1 does not match - context is missing',
+        ),
+        (
+            "Policy #1 does not match - context is missing",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #1 does not match - context says IP is not in the allowed range',
+        ),
+        (
+            "Policy #1 does not match - context says IP is not in the allowed range",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {"ip": "0.0.0.0"}
+                "context": {"ip": "0.0.0.0"},
             },
             False,
-    ),
-    (
-            'Policy #5 does not match - action is update, but subjects does not match',
+        ),
+        (
+            "Policy #5 does not match - action is update, but subjects does not match",
             {
                 "subject": {"id": "user:10", "attributes": {"name": "Sarah"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #5 does not match - action is update, subject is Nina, but resource-name is not digits',
+        ),
+        (
+            "Policy #5 does not match - action is update, subject is Nina, but resource-name is not digits",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "abcd"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #5 should match',
+        ),
+        (
+            "Policy #5 should match",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "00678"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
+        ),
+        (
             'Policy #5 and #6 should match - usage of "id" in context. Policy #5 overrides.',
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "00678"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {"id": "3fkap-bmvci-rmvp0"}
+                "context": {"id": "3fkap-bmvci-rmvp0"},
             },
             True,
-    ),
-    (
-            'Policy #5 should match and not #6 - usage of different context',
+        ),
+        (
+            "Policy #5 should match and not #6 - usage of different context",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "00678"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {"name": "test"}
+                "context": {"name": "test"},
             },
             True,
-    ),
-    (
-            'Ben is allowed to print anything when logged in with gmail',
+        ),
+        (
+            "Ben is allowed to print anything when logged in with gmail",
             {
                 "subject": {"id": SUBJECT_IDS["Ben"], "attributes": {"name": "Ben"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'Ben is not allowed to print anything when logged in with yahoo',
+        ),
+        (
+            "Ben is not allowed to print anything when logged in with yahoo",
             {
                 "subject": {"id": SUBJECT_IDS["Ben"], "attributes": {"name": "Ben", "email": "ben@yahoo.com"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'A user with employee role is not allowed to view classified documents for sales',
+        ),
+        (
+            "A user with employee role is not allowed to view classified documents for sales",
             {
                 "subject": {"id": "", "attributes": {"roles": ["employee"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:sales:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'A user with manager role is allowed to view classified documents for sales',
+        ),
+        (
+            "A user with manager role is allowed to view classified documents for sales",
             {
                 "subject": {"id": "", "attributes": {"roles": ["manager"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:sales:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'A user with manager role is not allowed to view other classified documents',
+        ),
+        (
+            "A user with manager role is not allowed to view other classified documents",
             {
                 "subject": {"id": "", "attributes": {"roles": ["manager"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:products:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Allow override algorithm allows user with both manager and employee roles '
-            'to view classified documents for sales',
+        ),
+        (
+            "Allow override algorithm allows user with both manager and employee roles "
+            "to view classified documents for sales",
             {
                 "subject": {"id": "", "attributes": {"roles": ["employee", "manager"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:sales:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-])
+        ),
+    ],
+)
 def test_is_allowed_allow_overrides(st, desc, request_json, should_be_allowed):
     pdp = PDP(st, EvaluationAlgorithm.ALLOW_OVERRIDES, [EmailsAttributeProvider()])
     request = AccessRequest.from_json(request_json)
     assert should_be_allowed == pdp.is_allowed(request)
 
 
-@pytest.mark.parametrize('desc, request_json, should_be_allowed', [
-    (
-            'Empty inquiry carries no information, so nothing is allowed, even empty Policy #4',
-            {
-                "subject": {"id": ""},
-                "resource": {"id": ""},
-                "action": {"id": ""},
-                "context": {}
-            },
+@pytest.mark.parametrize(
+    "desc, request_json, should_be_allowed",
+    [
+        (
+            "Empty inquiry carries no information, so nothing is allowed, even empty Policy #4",
+            {"subject": {"id": ""}, "resource": {"id": ""}, "action": {"id": ""}, "context": {}},
             False,
-    ),
-    (
-            'Max is allowed to update anything',
+        ),
+        (
+            "Max is allowed to update anything",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'Max is allowed to update anything, even empty one',
+        ),
+        (
+            "Max is allowed to update anything, even empty one",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'Max, but not max is allowed to update anything (case-sensitive comparison)',
+        ),
+        (
+            "Max, but not max is allowed to update anything (case-sensitive comparison)",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "max"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Max is not allowed to print anything',
+        ),
+        (
+            "Max is not allowed to print anything",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Max is not allowed to print anything, even if no resource is given',
+        ),
+        (
+            "Max is not allowed to print anything, even if no resource is given",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Max is not allowed to print anything, even an empty resource',
+        ),
+        (
+            "Max is not allowed to print anything, even an empty resource",
             {
                 "subject": {"id": SUBJECT_IDS["Max"], "attributes": {"name": "Max"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #1 matches and has allow-effect',
+        ),
+        (
+            "Policy #1 matches and has allow-effect",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {"ip": "127.0.0.1"}
+                "context": {"ip": "127.0.0.1"},
             },
             True,
-    ),
-    (
-            'Policy #1 matches - Henry is listed in the allowed subjects regexp',
+        ),
+        (
+            "Policy #1 matches - Henry is listed in the allowed subjects regexp",
             {
                 "subject": {"id": SUBJECT_IDS["Henry"], "attributes": {"name": "Henry"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {"ip": "127.0.0.1"}
+                "context": {"ip": "127.0.0.1"},
             },
             True,
-    ),
-    (
-            'Policy #1 does not match - context was not found (misspelled)',
+        ),
+        (
+            "Policy #1 does not match - context was not found (misspelled)",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {"IP": "127.0.0.1"}
+                "context": {"IP": "127.0.0.1"},
             },
             False,
-    ),
-    (
-            'Policy #1 does not match - context is missing',
+        ),
+        (
+            "Policy #1 does not match - context is missing",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #1 does not match - context says IP is not in the allowed range',
+        ),
+        (
+            "Policy #1 does not match - context says IP is not in the allowed range",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "delete"}},
-                "context": {"ip": "0.0.0.0"}
+                "context": {"ip": "0.0.0.0"},
             },
             False,
-    ),
-    (
-            'Policy #5 does not match - action is update, but subjects does not match',
+        ),
+        (
+            "Policy #5 does not match - action is update, but subjects does not match",
             {
                 "subject": {"id": "user:10", "attributes": {"name": "Sarah"}},
                 "resource": {"id": "", "attributes": {"name": "myrn:example.com:resource:123"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #5 does not match - action is update, subject is Nina, but resource-name is not digits',
+        ),
+        (
+            "Policy #5 does not match - action is update, subject is Nina, but resource-name is not digits",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "abcd"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Policy #5 should match',
+        ),
+        (
+            "Policy #5 should match",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "00678"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
+        ),
+        (
             'Policy #5 and #6 should match - usage of "id" in context. Policy #6 overrides.',
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "00678"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {"id": "3fkap-bmvci-rmvp0"}
+                "context": {"id": "3fkap-bmvci-rmvp0"},
             },
             False,
-    ),
-    (
-            'Policy #5 should match and not #6 - usage of different context',
+        ),
+        (
+            "Policy #5 should match and not #6 - usage of different context",
             {
                 "subject": {"id": SUBJECT_IDS["Nina"], "attributes": {"name": "Nina"}},
                 "resource": {"id": "", "attributes": {"name": "00678"}},
                 "action": {"id": "", "attributes": {"method": "update"}},
-                "context": {"name": "test"}
+                "context": {"name": "test"},
             },
             True,
-    ),
-    (
-            'Ben is allowed to print anything when logged in with gmail',
+        ),
+        (
+            "Ben is allowed to print anything when logged in with gmail",
             {
                 "subject": {"id": SUBJECT_IDS["Ben"], "attributes": {"name": "Ben"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'Ben is not allowed to print anything when logged in with yahoo',
+        ),
+        (
+            "Ben is not allowed to print anything when logged in with yahoo",
             {
                 "subject": {"id": SUBJECT_IDS["Ben"], "attributes": {"name": "Ben", "email": "ben@yahoo.com"}},
                 "resource": {"id": "", "attributes": {"name": ""}},
                 "action": {"id": "", "attributes": {"method": "print"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'A user with employee role is not allowed to view classified documents for sales',
+        ),
+        (
+            "A user with employee role is not allowed to view classified documents for sales",
             {
                 "subject": {"id": "", "attributes": {"roles": ["employee"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:sales:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'A user with manager role is allowed to view classified documents for sales',
+        ),
+        (
+            "A user with manager role is allowed to view classified documents for sales",
             {
                 "subject": {"id": "", "attributes": {"roles": ["manager"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:sales:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-    (
-            'A user with manager role is not allowed to view other classified documents',
+        ),
+        (
+            "A user with manager role is not allowed to view other classified documents",
             {
                 "subject": {"id": "", "attributes": {"roles": ["manager"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:products:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             False,
-    ),
-    (
-            'Highest priority algorithm allows user with both manager and employee roles '
-            'to view classified documents for sales. Policy #9 applies due to higher priority.',
+        ),
+        (
+            "Highest priority algorithm allows user with both manager and employee roles "
+            "to view classified documents for sales. Policy #9 applies due to higher priority.",
             {
                 "subject": {"id": "", "attributes": {"roles": ["employee", "manager"]}},
                 "resource": {"id": "", "attributes": {"name": "doc:confidential:sales:I3462"}},
                 "action": {"id": "", "attributes": {"method": "get"}},
-                "context": {}
+                "context": {},
             },
             True,
-    ),
-])
+        ),
+    ],
+)
 def test_is_allowed_highest_priority(st, desc, request_json, should_be_allowed):
     pdp = PDP(st, EvaluationAlgorithm.HIGHEST_PRIORITY, [EmailsAttributeProvider()])
     request = AccessRequest.from_json(request_json)

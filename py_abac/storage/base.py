@@ -5,7 +5,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import Generator, Union
 
-from ..policy import Policy
+from .._policy import Policy
 
 
 class Storage(metaclass=ABCMeta):

@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from py_abac.policy import Policy
+from py_abac._policy import Policy
 from py_abac.storage.mongo.model import PolicyModel
 
 # Pytest mark for module
@@ -19,13 +19,10 @@ def test_from_policy():
         "description": "Block user 'Max' when ip in CIDR 192.168.1.0/24",
         "rules": {
             "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
-            "context": {"$.ip": {"condition": "Not",
-                                 "value": {"condition": "CIDR", "value": "192.168.1.0/24"}}}
+            "context": {"$.ip": {"condition": "Not", "value": {"condition": "CIDR", "value": "192.168.1.0/24"}}},
         },
-        "targets": {
-            "subject_id": "user::b90b2998-9e1b-4ac5-a743-b060b2634dbb"
-        },
-        "effect": "deny"
+        "targets": {"subject_id": "user::b90b2998-9e1b-4ac5-a743-b060b2634dbb"},
+        "effect": "deny",
     }
     policy = Policy.from_json(policy_json)
     model = PolicyModel.from_policy(policy)
@@ -35,9 +32,11 @@ def test_from_policy():
     assert isinstance(model.tags, dict)
     assert model.policy_str == json.dumps(policy.to_json())
     assert model._id == policy.uid
-    assert model.tags == {"subject": [{"id": ["user::b90b2998-9e1b-4ac5-a743-b060b2634dbb"]}],
-                          "resource": [{"id": ["*"]}],
-                          "action": [{"id": ["*"]}]}
+    assert model.tags == {
+        "subject": [{"id": ["user::b90b2998-9e1b-4ac5-a743-b060b2634dbb"]}],
+        "resource": [{"id": ["*"]}],
+        "action": [{"id": ["*"]}],
+    }
 
 
 def test_to_policy():
@@ -46,13 +45,10 @@ def test_to_policy():
         "description": "Block user 'Max' when ip in CIDR 192.168.1.0/24",
         "rules": {
             "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
-            "context": {"$.ip": {"condition": "Not",
-                                 "value": {"condition": "CIDR", "value": "192.168.1.0/24"}}}
+            "context": {"$.ip": {"condition": "Not", "value": {"condition": "CIDR", "value": "192.168.1.0/24"}}},
         },
-        "targets": {
-            "subject_id": "user::b90b2998-9e1b-4ac5-a743-b060b2634dbb"
-        },
-        "effect": "deny"
+        "targets": {"subject_id": "user::b90b2998-9e1b-4ac5-a743-b060b2634dbb"},
+        "effect": "deny",
     }
     policy = Policy.from_json(policy_json)
     model = PolicyModel.from_policy(policy)
@@ -68,13 +64,10 @@ def test_from_doc():
         "description": "Block user 'Max' when ip in CIDR 192.168.1.0/24",
         "rules": {
             "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
-            "context": {"$.ip": {"condition": "Not",
-                                 "value": {"condition": "CIDR", "value": "192.168.1.0/24"}}}
+            "context": {"$.ip": {"condition": "Not", "value": {"condition": "CIDR", "value": "192.168.1.0/24"}}},
         },
-        "targets": {
-            "subject_id": "user::b90b2998-9e1b-4ac5-a743-b060b2634dbb"
-        },
-        "effect": "deny"
+        "targets": {"subject_id": "user::b90b2998-9e1b-4ac5-a743-b060b2634dbb"},
+        "effect": "deny",
     }
     policy = Policy.from_json(policy_json)
     policy_doc = {"_id": policy.uid, "policy_str": json.dumps(policy.to_json()), "tags": {}}
@@ -90,13 +83,10 @@ def test_to_doc():
         "description": "Block user 'Max' when ip in CIDR 192.168.1.0/24",
         "rules": {
             "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
-            "context": {"$.ip": {"condition": "Not",
-                                 "value": {"condition": "CIDR", "value": "192.168.1.0/24"}}}
+            "context": {"$.ip": {"condition": "Not", "value": {"condition": "CIDR", "value": "192.168.1.0/24"}}},
         },
-        "targets": {
-            "subject_id": "user::b90b2998-9e1b-4ac5-a743-b060b2634dbb"
-        },
-        "effect": "deny"
+        "targets": {"subject_id": "user::b90b2998-9e1b-4ac5-a743-b060b2634dbb"},
+        "effect": "deny",
     }
     policy = Policy.from_json(policy_json)
     policy_doc = {"_id": policy.uid, "policy_str": json.dumps(policy.to_json()), "tags": {}}
@@ -105,80 +95,149 @@ def test_to_doc():
     assert policy_doc == new_policy_doc
 
 
-@pytest.mark.parametrize("policy_json, tags", [
-    (
+@pytest.mark.parametrize(
+    "policy_json, tags",
+    [
+        (
             {
                 "uid": "a381fdd3-b73a-4858-a57b-94085628b0f1",
                 "description": "Simple target match",
                 "rules": {},
-                "targets": {
-                    "subject_id": "abc"
-                },
-                "effect": "deny"
+                "targets": {"subject_id": "abc"},
+                "effect": "deny",
             },
-            {
-                "subject": [
-                    {"id": ["abc"]}
-                ],
-                "resource": [
-                    {"id": ["*"]}
-                ],
-                "action": [
-                    {"id": ["*"]}
-                ]
-            }
-    ),
-])
+            {"subject": [{"id": ["abc"]}], "resource": [{"id": ["*"]}], "action": [{"id": ["*"]}]},
+        ),
+    ],
+)
 def test__targets_to_tags(policy_json, tags):
     policy = Policy.from_json(policy_json)
     assert PolicyModel._targets_to_tags(policy.targets) == tags
 
 
-@pytest.mark.parametrize("subject_id, resource_id, action_id, pipeline", [
-    ("ab", "ab", "ab",
-     [{'$match': {'tags.action.id': {'$in': ['ab', '*', '*a*', 'a*', '*b', '*b*', '*ab*', 'ab*', '*ab']},
-                  'tags.resource.id': {'$in': ['ab', '*', '*a*', 'a*', '*b', '*b*', '*ab*', 'ab*', '*ab']},
-                  'tags.subject.id': {'$in': ['ab', '*', '*a*', 'a*', '*b', '*b*', '*ab*', 'ab*', '*ab']}}},
-      {'$match': {
-          'tags.action.id': {
-              '$not': {'$elemMatch': {'$nin': ['ab', '*', '*a*', 'a*', '*b', '*b*', '*ab*', 'ab*', '*ab']}}
-          },
-          'tags.resource.id': {
-              '$not': {'$elemMatch': {'$nin': ['ab', '*', '*a*', 'a*', '*b', '*b*', '*ab*', 'ab*', '*ab']}}
-          },
-          'tags.subject.id': {
-              '$not': {'$elemMatch': {'$nin': ['ab', '*', '*a*', 'a*', '*b', '*b*', '*ab*', 'ab*', '*ab']}}
-          }}
-      }]),
-    ("abc", "ab", "ab",
-     [{'$match': {'tags.action.id': {'$in': ['ab', '*', '*a*', 'a*', '*b', '*b*', '*ab*', 'ab*', '*ab']},
-                  'tags.resource.id': {'$in': ['ab', '*', '*a*', 'a*', '*b', '*b*', '*ab*', 'ab*', '*ab']},
-                  'tags.subject.id': {
-                      '$in': ['abc', '*', '*a*', 'a*', '*b*', '*c', '*c*', '*ab*', 'ab*', '*bc', '*bc*', '*abc*',
-                              'abc*', '*abc']}}},
-      {'$match': {
-          'tags.action.id': {
-              '$not': {'$elemMatch': {'$nin': ['ab', '*', '*a*', 'a*', '*b', '*b*', '*ab*', 'ab*', '*ab']}}},
-          'tags.resource.id': {
-              '$not': {'$elemMatch': {'$nin': ['ab', '*', '*a*', 'a*', '*b', '*b*', '*ab*', 'ab*', '*ab']}}},
-          'tags.subject.id': {
-              '$not': {'$elemMatch': {
-                  '$nin': ['abc', '*', '*a*', 'a*', '*b*', '*c', '*c*', '*ab*', 'ab*', '*bc', '*bc*', '*abc*', 'abc*',
-                           '*abc']}}}}}]
-     ),
-])
+@pytest.mark.parametrize(
+    "subject_id, resource_id, action_id, pipeline",
+    [
+        (
+            "ab",
+            "ab",
+            "ab",
+            [
+                {
+                    "$match": {
+                        "tags.action.id": {"$in": ["ab", "*", "*a*", "a*", "*b", "*b*", "*ab*", "ab*", "*ab"]},
+                        "tags.resource.id": {"$in": ["ab", "*", "*a*", "a*", "*b", "*b*", "*ab*", "ab*", "*ab"]},
+                        "tags.subject.id": {"$in": ["ab", "*", "*a*", "a*", "*b", "*b*", "*ab*", "ab*", "*ab"]},
+                    }
+                },
+                {
+                    "$match": {
+                        "tags.action.id": {
+                            "$not": {
+                                "$elemMatch": {"$nin": ["ab", "*", "*a*", "a*", "*b", "*b*", "*ab*", "ab*", "*ab"]}
+                            }
+                        },
+                        "tags.resource.id": {
+                            "$not": {
+                                "$elemMatch": {"$nin": ["ab", "*", "*a*", "a*", "*b", "*b*", "*ab*", "ab*", "*ab"]}
+                            }
+                        },
+                        "tags.subject.id": {
+                            "$not": {
+                                "$elemMatch": {"$nin": ["ab", "*", "*a*", "a*", "*b", "*b*", "*ab*", "ab*", "*ab"]}
+                            }
+                        },
+                    }
+                },
+            ],
+        ),
+        (
+            "abc",
+            "ab",
+            "ab",
+            [
+                {
+                    "$match": {
+                        "tags.action.id": {"$in": ["ab", "*", "*a*", "a*", "*b", "*b*", "*ab*", "ab*", "*ab"]},
+                        "tags.resource.id": {"$in": ["ab", "*", "*a*", "a*", "*b", "*b*", "*ab*", "ab*", "*ab"]},
+                        "tags.subject.id": {
+                            "$in": [
+                                "abc",
+                                "*",
+                                "*a*",
+                                "a*",
+                                "*b*",
+                                "*c",
+                                "*c*",
+                                "*ab*",
+                                "ab*",
+                                "*bc",
+                                "*bc*",
+                                "*abc*",
+                                "abc*",
+                                "*abc",
+                            ]
+                        },
+                    }
+                },
+                {
+                    "$match": {
+                        "tags.action.id": {
+                            "$not": {
+                                "$elemMatch": {"$nin": ["ab", "*", "*a*", "a*", "*b", "*b*", "*ab*", "ab*", "*ab"]}
+                            }
+                        },
+                        "tags.resource.id": {
+                            "$not": {
+                                "$elemMatch": {"$nin": ["ab", "*", "*a*", "a*", "*b", "*b*", "*ab*", "ab*", "*ab"]}
+                            }
+                        },
+                        "tags.subject.id": {
+                            "$not": {
+                                "$elemMatch": {
+                                    "$nin": [
+                                        "abc",
+                                        "*",
+                                        "*a*",
+                                        "a*",
+                                        "*b*",
+                                        "*c",
+                                        "*c*",
+                                        "*ab*",
+                                        "ab*",
+                                        "*bc",
+                                        "*bc*",
+                                        "*abc*",
+                                        "abc*",
+                                        "*abc",
+                                    ]
+                                }
+                            }
+                        },
+                    }
+                },
+            ],
+        ),
+    ],
+)
 def test_get_aggregate_pipeline(subject_id, resource_id, action_id, pipeline):
     returned_pipeline = PolicyModel.get_aggregate_pipeline(subject_id, resource_id, action_id)
-    assert sorted(returned_pipeline[0]['$match']['tags.action.id']['$in']) == sorted(
-        pipeline[0]['$match']['tags.action.id']['$in'])
-    assert sorted(returned_pipeline[0]['$match']['tags.resource.id']['$in']) == sorted(
-        pipeline[0]['$match']['tags.resource.id']['$in'])
-    assert sorted(returned_pipeline[0]['$match']['tags.subject.id']['$in']) == sorted(
-        pipeline[0]['$match']['tags.subject.id']['$in'])
+    assert sorted(returned_pipeline[0]["$match"]["tags.action.id"]["$in"]) == sorted(
+        pipeline[0]["$match"]["tags.action.id"]["$in"]
+    )
+    assert sorted(returned_pipeline[0]["$match"]["tags.resource.id"]["$in"]) == sorted(
+        pipeline[0]["$match"]["tags.resource.id"]["$in"]
+    )
+    assert sorted(returned_pipeline[0]["$match"]["tags.subject.id"]["$in"]) == sorted(
+        pipeline[0]["$match"]["tags.subject.id"]["$in"]
+    )
 
-    assert sorted(returned_pipeline[1]['$match']['tags.action.id']['$not']['$elemMatch']['$nin']) == sorted(
-        pipeline[1]['$match']['tags.action.id']['$not']['$elemMatch']['$nin'])
-    assert sorted(returned_pipeline[1]['$match']['tags.resource.id']['$not']['$elemMatch']['$nin']) == sorted(
-        pipeline[1]['$match']['tags.resource.id']['$not']['$elemMatch']['$nin'])
-    assert sorted(returned_pipeline[1]['$match']['tags.subject.id']['$not']['$elemMatch']['$nin']) == sorted(
-        pipeline[1]['$match']['tags.subject.id']['$not']['$elemMatch']['$nin'])
+    assert sorted(returned_pipeline[1]["$match"]["tags.action.id"]["$not"]["$elemMatch"]["$nin"]) == sorted(
+        pipeline[1]["$match"]["tags.action.id"]["$not"]["$elemMatch"]["$nin"]
+    )
+    assert sorted(returned_pipeline[1]["$match"]["tags.resource.id"]["$not"]["$elemMatch"]["$nin"]) == sorted(
+        pipeline[1]["$match"]["tags.resource.id"]["$not"]["$elemMatch"]["$nin"]
+    )
+    assert sorted(returned_pipeline[1]["$match"]["tags.subject.id"]["$not"]["$elemMatch"]["$nin"]) == sorted(
+        pipeline[1]["$match"]["tags.subject.id"]["$not"]["$elemMatch"]["$nin"]
+    )

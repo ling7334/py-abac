@@ -22,47 +22,47 @@ def test_create():
     assert targets.action_id == "*"
 
 
-@pytest.mark.parametrize("targets_json", [
-    {"subject_id": [None, ]},
-    {"resource_id": [{}, ]},
-    {"action_id": {}},
-    {"subject_id": [""]},
-    {"resource_id": ""},
-])
+@pytest.mark.parametrize(
+    "targets_json",
+    [
+        {
+            "subject_id": [
+                None,
+            ]
+        },
+        {
+            "resource_id": [
+                {},
+            ]
+        },
+        {"action_id": {}},
+        {"subject_id": [""]},
+        {"resource_id": ""},
+    ],
+)
 def test_create_error(targets_json):
     with pytest.raises(ValidationError):
         TargetsSchema().load(targets_json)
 
 
-@pytest.mark.parametrize("targets_json, result", [
-    ({}, True),
-    ({"subject_id": "abc"}, True),
-    ({"subject_id": "ab*"}, True),
-    ({"subject_id": "abd"}, False),
-    ({"subject_id": ["abd", "ab*"]}, True),
-    ({"subject_id": "ab*", "resource_id": "1*"}, True),
-    ({"subject_id": "ab*", "resource_id": "1*", "action_id": "1"}, False),
-])
+@pytest.mark.parametrize(
+    "targets_json, result",
+    [
+        ({}, True),
+        ({"subject_id": "abc"}, True),
+        ({"subject_id": "ab*"}, True),
+        ({"subject_id": "abd"}, False),
+        ({"subject_id": ["abd", "ab*"]}, True),
+        ({"subject_id": "ab*", "resource_id": "1*"}, True),
+        ({"subject_id": "ab*", "resource_id": "1*", "action_id": "1"}, False),
+    ],
+)
 def test_match(targets_json, result):
     request_json = {
-        "subject": {
-            "id": "abc",
-            "attributes": {
-                "firstName": "Carl",
-                "lastName": "Right"
-            }
-        },
-        "resource": {
-            "id": "12",
-            "attributes": {
-                "name": "Calendar"
-            }
-        },
-        "action": {
-            "id": ">",
-            "attributes": {}
-        },
-        "context": {}
+        "subject": {"id": "abc", "attributes": {"firstName": "Carl", "lastName": "Right"}},
+        "resource": {"id": "12", "attributes": {"name": "Calendar"}},
+        "action": {"id": ">", "attributes": {}},
+        "context": {},
     }
     request = AccessRequest.from_json(request_json)
     ctx = EvaluationContext(request)

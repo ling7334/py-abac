@@ -14,7 +14,7 @@ extra_requires_mongo = [
     'pymongo~=3.5'
 ]
 extra_requires_sql = [
-    'SQLAlchemy~=1.3'
+    'SQLAlchemy~=2.0'
 ]
 extra_requires_redis = [
     'redis~=3.5'
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         install_requires=[
             'marshmallow~=3.2',
             'marshmallow-oneofschema~=2.0',
-            'pydantic~=1.8.1',
+            'pydantic~=1.10.7',
             'objectpath~=0.6',
             'lru-dict~=1.1'
         ],

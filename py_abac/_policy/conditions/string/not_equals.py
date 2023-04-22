@@ -2,7 +2,6 @@
     String not equals conditions
 """
 
-from marshmallow import post_load
 
 from .base import StringCondition
 

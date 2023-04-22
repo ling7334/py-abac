@@ -10,13 +10,15 @@ from pydantic import BaseModel, constr
 from ..context import EvaluationContext
 
 
+ID_STR = Union[constr(min_length=1), List[constr(min_length=1)]]
+
 class Targets(BaseModel):
     """
         Policy targets
     """
-    subject_id: Union[constr(min_length=1), List[constr(min_length=1)]] = "*"
-    resource_id: Union[constr(min_length=1), List[constr(min_length=1)]] = "*"
-    action_id: Union[constr(min_length=1), List[constr(min_length=1)]] = "*"
+    subject_id: ID_STR = "*"
+    resource_id: ID_STR = "*"
+    action_id: ID_STR = "*"
 
     def match(self, ctx: EvaluationContext):
         """

@@ -3,12 +3,12 @@
 """
 
 import pytest
-from marshmallow import ValidationError
+from pydantic import ValidationError
 
 from py_abac.context import EvaluationContext
-from py_abac.policy.conditions.numeric import Eq
-from py_abac.policy.conditions.string import Equals
-from py_abac.policy.rules import Rules, RulesSchema
+from py_abac._policy.conditions.numeric import Eq
+from py_abac._policy.conditions.string import Equals
+from py_abac._policy.rules import Rules
 from py_abac.request import AccessRequest
 
 
@@ -19,7 +19,7 @@ def test_create():
         "action": {},
         "context": {},
     }
-    rules = RulesSchema().load(rules_json)
+    rules = Rules(**rules_json)
     assert isinstance(rules, Rules)
     assert isinstance(rules.subject["$.uid"], Eq)
     assert rules.subject["$.uid"].value == 1.0
@@ -30,8 +30,11 @@ def test_create():
 
     rules_json = {
         "subject": {"$.uid": {"condition": "Eq", "value": 1.0}},
+        "resource": {},
+        "action": {},
+        "context": {},
     }
-    rules = RulesSchema().load(rules_json)
+    rules = Rules(**rules_json)
     assert isinstance(rules, Rules)
     assert isinstance(rules.subject["$.uid"], Eq)
     assert rules.subject["$.uid"].value == 1.0
@@ -59,7 +62,7 @@ def test_create():
 )
 def test_create_error(rules_json):
     with pytest.raises(ValidationError):
-        RulesSchema().load(rules_json)
+        Rules(**rules_json)
 
 
 @pytest.mark.parametrize(
@@ -151,5 +154,5 @@ def test_is_satisfied(rules_json, result):
     }
     request = AccessRequest.from_json(request_json)
     ctx = EvaluationContext(request)
-    rules = RulesSchema().load(rules_json)
+    rules = Rules(**rules_json)
     assert rules.is_satisfied(ctx) == result

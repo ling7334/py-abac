@@ -5,13 +5,13 @@
 import json
 import logging
 from itertools import islice
-from typing import Generator, Union
+from typing import Generator, Union, Optional
 
 from redis import Redis
 
 from ..base import Storage
 from ...exceptions import PolicyExistsError
-from ...policy import Policy
+from ..._policy import Policy
 
 LOG = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class RedisStorage(Storage):
             stored in database.
     """
 
-    def __init__(self, client: Redis, hash_key: str = None):
+    def __init__(self, client: Redis, hash_key: Optional[str] = None):
         self.client = client
         self._hash = hash_key or DEFAULT_HASH_KEY
 

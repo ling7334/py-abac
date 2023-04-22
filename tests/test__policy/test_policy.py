@@ -8,11 +8,11 @@ import pytest
 
 from py_abac.context import EvaluationContext
 from py_abac.exceptions import PolicyCreateError
-from py_abac.policy import Policy
-from py_abac.policy.conditions.numeric import Eq
-from py_abac.policy.conditions.string import Equals
-from py_abac.policy.rules import Rules
-from py_abac.policy.targets import Targets
+from py_abac._policy import Policy
+from py_abac._policy.conditions.numeric import Eq
+from py_abac._policy.conditions.string import Equals
+from py_abac._policy.rules import Rules
+from py_abac._policy.targets import Targets
 from py_abac.request import AccessRequest
 
 
@@ -154,6 +154,9 @@ class TestPolicy(object):
                     "description": "Block user 'Max'",
                     "rules": {
                         "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
+                        "resource": {},
+                        "action": {},
+                        "context": {},
                     },
                     "targets": {},
                     "effect": "deny",
@@ -173,6 +176,9 @@ class TestPolicy(object):
                     "description": "Block user 'Max'",
                     "rules": {
                         "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
+                        "resource": {},
+                        "action": {},
+                        "context": {},
                     },
                     "targets": {},
                     "effect": "deny",
@@ -192,6 +198,9 @@ class TestPolicy(object):
                     "description": "Block user 'Max'",
                     "rules": {
                         "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
+                        "resource": {},
+                        "action": {},
+                        "context": {},
                     },
                     "targets": {"subject_id": "user::b90b2998-9e1b-4ac5-a743-b060b2634dbb"},
                     "effect": "deny",
@@ -211,6 +220,9 @@ class TestPolicy(object):
                     "description": "Block user 'Max'",
                     "rules": {
                         "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
+                        "resource": {},
+                        "action": {},
+                        "context": {},
                     },
                     "targets": {"subject_id": "user::b90b2998-*"},
                     "effect": "deny",
@@ -230,6 +242,9 @@ class TestPolicy(object):
                     "description": "Block user 'Max'",
                     "rules": {
                         "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
+                        "resource": {},
+                        "action": {},
+                        "context": {},
                     },
                     "targets": {"subject_id": "user::b90b2998-9e1b"},
                     "effect": "deny",
@@ -249,6 +264,8 @@ class TestPolicy(object):
                     "description": "Block user 'Max' when ip in CIDR 192.168.1.0/24",
                     "rules": {
                         "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
+                        "resource": {},
+                        "action": {},
                         "context": {
                             "$.ip": {"condition": "Not", "value": {"condition": "CIDR", "value": "192.168.1.0/24"}}
                         },
@@ -271,6 +288,8 @@ class TestPolicy(object):
                     "description": "Block user 'Max' when ip in CIDR 192.168.1.0/24",
                     "rules": {
                         "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
+                        "resource": {},
+                        "action": {},
                         "context": {
                             "$.ip": {"condition": "Not", "value": {"condition": "CIDR", "value": "192.168.1.0/24"}}
                         },

@@ -3,7 +3,7 @@
 """
 
 import logging
-from typing import List, Any
+from typing import List, Any, Optional
 
 from .provider.base import AttributeProvider
 from .provider.request import RequestAttributeProvider
@@ -17,7 +17,7 @@ class EvaluationContext(object):
         Evaluation context class
     """
 
-    def __init__(self, request: AccessRequest, providers: List[AttributeProvider] = None):
+    def __init__(self, request: AccessRequest, providers: Optional[List[AttributeProvider]] = None):
         """
             Initialize evaluation context object
 
@@ -30,12 +30,12 @@ class EvaluationContext(object):
         self._other_providers = providers or []
 
         # Access control element being evaluated
-        self._ace = None
+        self._ace = ""
         # Path of attribute being evaluated
-        self._attribute_path = None
+        self._attribute_path = ""
         # Call stack of attribute providers as called by context. The stack
         # is used to prevent infinite recursive loops.
-        self._provider_call_stack = [None]
+        self._provider_call_stack: List[AttributeProvider | None] = [None]
 
     @property
     def subject_id(self) -> str:

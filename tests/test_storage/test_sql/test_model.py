@@ -2,7 +2,7 @@ from typing import List
 
 import pytest
 
-from py_abac.policy import Policy
+from py_abac._policy import Policy
 from py_abac.storage.sql.model import PolicyModel, TargetModel
 
 # Pytest mark for module
@@ -11,14 +11,14 @@ pytestmark = [pytest.mark.sql, pytest.mark.integration]
 
 def policy_model_assert(policy_model: PolicyModel, policy: Policy):
     """
-        Assert if the given policy model object `policy_model` is equal to the policy object `policy`
+    Assert if the given policy model object `policy_model` is equal to the policy object `policy`
     """
 
     def assert_targets(target_models: List[TargetModel], target_ids):
         _target_ids = target_ids if isinstance(target_ids, list) else [target_ids]
         assert len(target_models) == len(_target_ids)
         for x in range(len(_target_ids)):
-            assert target_models[x].target_id.replace('%', '*') == _target_ids[x]
+            assert target_models[x].target_id.replace("%", "*") == _target_ids[x]
 
     assert policy_model.uid == policy.uid
     assert policy_model.json == policy.to_json()
@@ -36,10 +36,10 @@ class TestModel:
             "subject": {"$.name": {"condition": "Equals", "value": "Max"}},
             "resource": {"$.name": {"condition": "RegexMatch", "value": ".*"}},
             "action": {"$.method": {"condition": "Equals", "value": "print"}},
-            "context": {}
+            "context": {},
         },
         "targets": {"subject_id": "user:1"},
-        "priority": 0
+        "priority": 0,
     }
 
     def test_from_policy(self):

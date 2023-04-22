@@ -1,16 +1,19 @@
 """
     Condition one-of schema
 """
+from pydantic import ValidationError
 
 from .attribute.all_in import AllInAttribute
 from .attribute.all_not_in import AllNotInAttribute
 from .attribute.any_in import AnyInAttribute
 from .attribute.any_not_in import AnyNotInAttribute
+
 # -- Attribute Conditions ---
 from .attribute.equals import EqualsAttribute
 from .attribute.is_in import IsInAttribute
 from .attribute.is_not_in import IsNotInAttribute
 from .attribute.not_equals import NotEqualsAttribute
+
 # --- Collection Conditions ---
 from .collection.all_in import AllIn
 from .collection.all_not_in import AllNotIn
@@ -20,10 +23,12 @@ from .collection.is_empty import IsEmpty
 from .collection.is_in import IsIn
 from .collection.is_not_empty import IsNotEmpty
 from .collection.is_not_in import IsNotIn
+
 # --- Logic Conditions ---
 from .logic.all_of import AllOf
 from .logic.any_of import AnyOf
 from .logic.not_ import Not
+
 # --- Numeric Conditions ---
 from .numeric.eq import Eq
 from .numeric.gt import Gt
@@ -31,13 +36,16 @@ from .numeric.gte import Gte
 from .numeric.lt import Lt
 from .numeric.lte import Lte
 from .numeric.neq import Neq
+
 # --- Object Conditions ---
 from .object.equals_object import EqualsObject
+
 # --- Other Conditions ---
 from .others.any import Any
 from .others.cidr import CIDR
 from .others.exists import Exists
 from .others.not_exists import NotExists
+
 # --- String Conditions ---
 from .string.contains import Contains
 from .string.ends_with import EndsWith
@@ -48,10 +56,11 @@ from .string.regex_match import RegexMatch
 from .string.starts_with import StartsWith
 
 
-class ConditionField:
+class Condition:
     """
-        Polymorphic JSON field for conditions
+    Polymorphic JSON field for conditions
     """
+
     type_field = "condition"
     type_schemas = {
         # --- Numeric Conditions ---
@@ -105,7 +114,26 @@ class ConditionField:
         yield cls.validate
 
     @classmethod
-    def validate(cls, v, values):
-        item_type = values[cls.type_field]
-        condition = cls.type_schemas[item_type]
+    def validate(cls, v, values=None):
+        try:
+            item_type = v[cls.type_field]
+            if "values" in v:
+                if isinstance(v["values"], dict) and cls.type_field in v["values"]:
+                    v["values"] = Condition.validate(v["values"], values)
+                if isinstance(v["values"], list):
+                    v["values"] = [
+                        Condition.validate(k, values) if isinstance(k, dict) and cls.type_field in k else k
+                        for k in v["values"]
+                    ]
+            if "value" in v:
+                if isinstance(v["value"], dict) and cls.type_field in v["value"]:
+                    v["value"] = Condition.validate(v["value"], values)
+                if isinstance(v["value"], list):
+                    v["value"] = [
+                        Condition.validate(k, values) if isinstance(k, dict) and cls.type_field in k else k
+                        for k in v["value"]
+                    ]
+            condition = cls.type_schemas[item_type]
+        except KeyError as e:
+            raise ValidationError(*e.args)
         return condition(**v)

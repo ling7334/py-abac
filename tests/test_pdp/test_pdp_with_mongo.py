@@ -5,7 +5,7 @@
 import pytest
 
 from py_abac.pdp import PDP, EvaluationAlgorithm
-from py_abac.policy import Policy
+from py_abac._policy import Policy
 from py_abac.provider.base import AttributeProvider
 from py_abac.request import AccessRequest
 from py_abac.storage.mongo import MongoStorage

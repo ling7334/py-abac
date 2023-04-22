@@ -11,7 +11,7 @@ from pymongo.errors import DuplicateKeyError
 from .model import PolicyModel
 from ..base import Storage
 from ...exceptions import PolicyExistsError
-from ...policy import Policy
+from ..._policy import Policy
 
 DEFAULT_DB = 'py_abac'
 DEFAULT_COLLECTION = 'py_abac_policies'

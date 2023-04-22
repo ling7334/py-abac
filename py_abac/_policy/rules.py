@@ -4,15 +4,16 @@
 
 from typing import Union, List, Dict
 
-from pydantic import BaseModel
+from objectpath import Tree
+from pydantic import BaseModel, Field
 
 from .conditions.field import Condition
 from ..context import EvaluationContext
 
 
-class ObjectPathField:
+class ObjectPathField(str):
     """
-        ObjectPath field
+    ObjectPath field
     """
 
     @classmethod
@@ -21,52 +22,50 @@ class ObjectPathField:
 
     @classmethod
     def validate(cls, v):
-        if not isinstance(v, str):
-            raise TypeError("str type in ObjectPath notion expected")
+        Tree({}).execute(v)
         return v
 
 
 class Rules(BaseModel):
     """
-        Policy rules
+    Policy rules
     """
-    subject: Union[
-        Dict[ObjectPathField, Condition],
-        List[Dict[ObjectPathField, Condition]]
-    ]
-    resource: Union[
-        Dict[ObjectPathField, Condition],
-        List[Dict[ObjectPathField, Condition]]
-    ]
-    action: Union[
-        Dict[ObjectPathField, Condition],
-        List[Dict[ObjectPathField, Condition]]
-    ]
-    context: Union[
-        Dict[ObjectPathField, Condition],
-        List[Dict[ObjectPathField, Condition]]
-    ]
+
+    subject: Union[List[Dict[ObjectPathField, Condition]], Dict[ObjectPathField, Condition]] = Field(
+        default_factory=dict
+    )
+    resource: Union[List[Dict[ObjectPathField, Condition]], Dict[ObjectPathField, Condition]] = Field(
+        default_factory=dict
+    )
+    action: Union[List[Dict[ObjectPathField, Condition]], Dict[ObjectPathField, Condition]] = Field(
+        default_factory=dict
+    )
+    context: Union[List[Dict[ObjectPathField, Condition]], Dict[ObjectPathField, Condition]] = Field(
+        default_factory=dict
+    )
 
     def is_satisfied(self, ctx: EvaluationContext):
         """
-            Check if request satisfies all conditions
+        Check if request satisfies all conditions
 
-            :param ctx: policy evaluation context
-            :return: True if satisfied else False
+        :param ctx: policy evaluation context
+        :return: True if satisfied else False
         """
-        return self._is_satisfied("subject", self.subject, ctx) and \
-               self._is_satisfied("resource", self.resource, ctx) and \
-               self._is_satisfied("action", self.action, ctx) and \
-               self._is_satisfied("context", self.context, ctx)
+        return (
+            self._is_satisfied("subject", self.subject, ctx)
+            and self._is_satisfied("resource", self.resource, ctx)
+            and self._is_satisfied("action", self.action, ctx)
+            and self._is_satisfied("context", self.context, ctx)
+        )
 
     def _is_satisfied(self, ace_name: str, ace_conditions, ctx: EvaluationContext):
         """
-            Check if the access control element satisfies request
+        Check if the access control element satisfies request
 
-            :param ace_name: access control element name
-            :param ace_conditions: access control element conditions
-            :param ctx: policy evaluation context
-            :return: True if satisfied else False
+        :param ace_name: access control element name
+        :param ace_conditions: access control element conditions
+        :param ctx: policy evaluation context
+        :return: True if satisfied else False
         """
         if isinstance(ace_conditions, list):
             return self._implicit_or(ace_name, ace_conditions, ctx)

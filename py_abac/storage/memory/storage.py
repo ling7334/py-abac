@@ -8,7 +8,7 @@ from typing import Generator, Union
 
 from ..base import Storage
 from ...exceptions import PolicyExistsError
-from ...policy import Policy
+from ..._policy import Policy
 
 LOG = logging.getLogger(__name__)
 

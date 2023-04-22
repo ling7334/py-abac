@@ -4,7 +4,7 @@
 
 from typing import Any
 
-from marshmallow import ValidationError
+from pydantic import ValidationError
 from objectpath import Tree
 from pydantic import PrivateAttr
 

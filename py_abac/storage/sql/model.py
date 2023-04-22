@@ -7,66 +7,66 @@ from typing import Union, List, Type
 from sqlalchemy import Column, String, Integer, JSON, ForeignKey
 from sqlalchemy import literal
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, mapped_column, Mapped
 
-from ...policy import Policy
+from ..._policy import Policy
 
 Base = declarative_base()
 
 
 class TargetModel:
     """
-        Base policy target model
+    Base policy target model
     """
-    target_id = Column(String(248), comment="Target ID used for filtering policies")
+    target_id: Mapped[str] = mapped_column(String(248), comment="Target ID used for filtering policies")
 
 
 class SubjectTargetModel(TargetModel, Base):
     """
-        Subject target data model
+    Subject target data model
     """
     __tablename__ = "py_abac_subject_targets"
 
-    id = Column(Integer, primary_key=True)
-    uid = Column(String(248), ForeignKey("py_abac_policies.uid", ondelete="CASCADE"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    uid: Mapped[str] = mapped_column(String(248), ForeignKey("py_abac_policies.uid", ondelete="CASCADE"))
 
 
 class ResourceTargetModel(TargetModel, Base):
     """
-        Resource target data model
+    Resource target data model
     """
     __tablename__ = "py_abac_resource_targets"
 
-    id = Column(Integer, primary_key=True)
-    uid = Column(String(248), ForeignKey("py_abac_policies.uid", ondelete="CASCADE"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    uid: Mapped[str] = mapped_column(String(248), ForeignKey("py_abac_policies.uid", ondelete="CASCADE"))
 
 
 class ActionTargetModel(TargetModel, Base):
     """
-        Action target data model
+    Action target data model
     """
     __tablename__ = "py_abac_action_targets"
 
-    id = Column(Integer, primary_key=True)
-    uid = Column(String(248), ForeignKey("py_abac_policies.uid", ondelete="CASCADE"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    uid: Mapped[str] = mapped_column(String(248), ForeignKey("py_abac_policies.uid", ondelete="CASCADE"))
 
 
 class PolicyModel(Base):
     """
-        Policy data model
+    Policy data model
     """
     __tablename__ = "py_abac_policies"
 
-    uid = Column(String(248), primary_key=True)
-    json = Column(JSON(), nullable=False)
-    subjects = relationship(SubjectTargetModel, passive_deletes=True, lazy='joined')
-    resources = relationship(ResourceTargetModel, passive_deletes=True, lazy='joined')
-    actions = relationship(ActionTargetModel, passive_deletes=True, lazy='joined')
+    uid: Mapped[str] = mapped_column(String(248), primary_key=True)
+    json: Mapped[dict] = mapped_column(JSON(), nullable=False)
+    subjects = relationship(SubjectTargetModel, passive_deletes=True, lazy="joined")
+    resources = relationship(ResourceTargetModel, passive_deletes=True, lazy="joined")
+    actions = relationship(ActionTargetModel, passive_deletes=True, lazy="joined")
 
     @classmethod
     def from_policy(cls, policy: Policy) -> "PolicyModel":
         """
-            Create `PolicyModel` from `Policy` object
+        Create `PolicyModel` from `Policy` object
         """
         rvalue = cls()
         rvalue._setup(policy)  # pylint: disable=protected-access
@@ -75,20 +75,20 @@ class PolicyModel(Base):
 
     def to_policy(self) -> Policy:
         """
-            Get `Policy` object from model instance
+        Get `Policy` object from model instance
         """
         return Policy.from_json(self.json)
 
     def update(self, policy: Policy):
         """
-            Update policy model instance to match policy object
+        Update policy model instance to match policy object
         """
         self._setup(policy)
 
     @classmethod
     def get_filter(cls, subject_id: str, resource_id: str, action_id: str):
         """
-            Get query filter for policies matching target IDs
+        Get query filter for policies matching target IDs
         """
         return [
             cls.subjects.any(
@@ -104,36 +104,22 @@ class PolicyModel(Base):
 
     def _setup(self, policy: Policy):
         """
-            Setup instance using policy object
+        Setup instance using policy object
         """
         self.uid = policy.uid
         self.json = policy.to_json()
 
         # Setup targets
-        self._setup_targets(
-            policy.targets.subject_id,
-            self.subjects,
-            SubjectTargetModel
-        )
-        self._setup_targets(
-            policy.targets.resource_id,
-            self.resources,
-            ResourceTargetModel
-        )
-        self._setup_targets(
-            policy.targets.action_id,
-            self.actions,
-            ActionTargetModel
-        )
+        self._setup_targets(policy.targets.subject_id, self.subjects, SubjectTargetModel)
+        self._setup_targets(policy.targets.resource_id, self.resources, ResourceTargetModel)
+        self._setup_targets(policy.targets.action_id, self.actions, ActionTargetModel)
 
     @staticmethod
     def _setup_targets(
-            target_id: Union[str, List[str]],
-            model_attr: List[TargetModel],
-            target_model_cls: Type[TargetModel]
+        target_id: Union[str, List[str]], model_attr: List[TargetModel], target_model_cls: Type[TargetModel]
     ):
         """
-            Setup policy target ID(s) into model attribute.
+        Setup policy target ID(s) into model attribute.
         """
         # Create list of target ID(s) present in policy
         target_ids = target_id if isinstance(target_id, list) else [target_id]
@@ -143,5 +129,5 @@ class PolicyModel(Base):
         for tid in target_ids:
             target_model = target_model_cls()
             # Replace with SQL wildcard '%'
-            target_model.target_id = tid.replace('*', '%')
+            target_model.target_id = tid.replace("*", "%")
             model_attr.append(target_model)
