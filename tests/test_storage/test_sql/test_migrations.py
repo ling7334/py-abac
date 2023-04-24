@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy import Engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from py_abac.storage.sql import SQLStorage
@@ -23,7 +24,6 @@ def session(engine):
 
 
 class TestSQLMigrationSet:
-
     @pytest.fixture
     def migration_set(self, session):
         storage = SQLStorage(scoped_session=session)
@@ -50,7 +50,6 @@ class TestSQLMigrationSet:
 
 
 class TestMigration0To0x2x1:
-
     @pytest.fixture
     def migration(self, session):
         storage = SQLStorage(scoped_session=session)
@@ -61,18 +60,18 @@ class TestMigration0To0x2x1:
         assert 1 == migration.order
 
     def test_has_access_to_storage(self, migration):
-        assert hasattr(migration, 'storage') and migration.storage is not None
+        assert hasattr(migration, "storage") and migration.storage is not None
 
-    def test_up(self, migration, engine):
+    def test_up(self, migration, engine: Engine):
         migration.up()
-        assert Base.metadata.tables[PolicyModel.__tablename__].exists(engine)
-        assert Base.metadata.tables[SubjectTargetModel.__tablename__].exists(engine)
-        assert Base.metadata.tables[ResourceTargetModel.__tablename__].exists(engine)
-        assert Base.metadata.tables[ActionTargetModel.__tablename__].exists(engine)
+        assert engine.dialect.has_table(engine.connect(), PolicyModel.__tablename__)
+        assert engine.dialect.has_table(engine.connect(), SubjectTargetModel.__tablename__)
+        assert engine.dialect.has_table(engine.connect(), ResourceTargetModel.__tablename__)
+        assert engine.dialect.has_table(engine.connect(), ActionTargetModel.__tablename__)
 
     def test_down(self, migration, engine):
         migration.down()
-        assert not Base.metadata.tables[PolicyModel.__tablename__].exists(engine)
-        assert not Base.metadata.tables[SubjectTargetModel.__tablename__].exists(engine)
-        assert not Base.metadata.tables[ResourceTargetModel.__tablename__].exists(engine)
-        assert not Base.metadata.tables[ActionTargetModel.__tablename__].exists(engine)
+        assert not engine.dialect.has_table(engine.connect(), PolicyModel.__tablename__)
+        assert not engine.dialect.has_table(engine.connect(), SubjectTargetModel.__tablename__)
+        assert not engine.dialect.has_table(engine.connect(), ResourceTargetModel.__tablename__)
+        assert not engine.dialect.has_table(engine.connect(), ActionTargetModel.__tablename__)

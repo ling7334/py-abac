@@ -129,9 +129,9 @@ class TestAttributeCondition(object):
     )
     def test_is_satisfied_equals_attribute(self, condition, what, result):
         request = AccessRequest(
-            subject={"attributes": {"what": what}},
-            resource={"attributes": {"name": {"what": what}}},
-            action={},
+            subject={"id":"", "attributes": {"what": what}},
+            resource={"id":"", "attributes": {"name": {"what": what}}},
+            action={"id":""},
             context={},
         )
         ctx = EvaluationContext(request)
@@ -151,9 +151,9 @@ class TestAttributeCondition(object):
     )
     def test_is_satisfied_not_equals_attribute(self, condition, what, result):
         request = AccessRequest(
-            subject={"attributes": {"what": what}},
-            resource={"attributes": {"name": {"what": what}}},
-            action={},
+            subject={"id":"", "attributes": {"what": what}},
+            resource={"id":"", "attributes": {"name": {"what": what}}},
+            action={"id":""},
             context={},
         )
         ctx = EvaluationContext(request)
@@ -173,9 +173,9 @@ class TestAttributeCondition(object):
     )
     def test_is_satisfied_is_in_attribute(self, condition, what, result):
         request = AccessRequest(
-            subject={"attributes": {"what": what}},
-            resource={"attributes": {"name": {"what": ["test"]}}},
-            action={},
+            subject={"id":"", "attributes": {"what": what}},
+            resource={"id":"", "attributes": {"name": {"what": ["test"]}}},
+            action={"id":""},
             context={},
         )
         ctx = EvaluationContext(request)
@@ -195,9 +195,9 @@ class TestAttributeCondition(object):
     )
     def test_is_satisfied_is_not_in_attribute(self, condition, what, result):
         request = AccessRequest(
-            subject={"attributes": {"what": what}},
-            resource={"attributes": {"name": {"what": ["test-2"]}}},
-            action={},
+            subject={"id":"", "attributes": {"what": what}},
+            resource={"id":"", "attributes": {"name": {"what": ["test-2"]}}},
+            action={"id":""},
             context={},
         )
         ctx = EvaluationContext(request)
@@ -219,9 +219,9 @@ class TestAttributeCondition(object):
     )
     def test_is_satisfied_all_in_attribute(self, condition, what, result):
         request = AccessRequest(
-            subject={"attributes": {"what": what}},
-            resource={"attributes": {"name": {"what": ["test_1"]}}},
-            action={},
+            subject={"id":"", "attributes": {"what": what}},
+            resource={"id":"", "attributes": {"name": {"what": ["test_1"]}}},
+            action={"id":""},
             context={},
         )
         ctx = EvaluationContext(request)
@@ -243,9 +243,9 @@ class TestAttributeCondition(object):
     )
     def test_is_satisfied_all_not_in_attribute(self, condition, what, result):
         request = AccessRequest(
-            subject={"attributes": {"what": what}},
-            resource={"attributes": {"name": {"what": ["test_1"]}}},
-            action={},
+            subject={"id":"", "attributes": {"what": what}},
+            resource={"id":"", "attributes": {"name": {"what": ["test_1"]}}},
+            action={"id":""},
             context={},
         )
         ctx = EvaluationContext(request)
@@ -267,9 +267,9 @@ class TestAttributeCondition(object):
     )
     def test_is_satisfied_any_in_attribute(self, condition, what, result):
         request = AccessRequest(
-            subject={"attributes": {"what": what}},
-            resource={"attributes": {"name": {"what": ["test_1"]}}},
-            action={},
+            subject={"id":"", "attributes": {"what": what}},
+            resource={"id":"", "attributes": {"name": {"what": ["test_1"]}}},
+            action={"id":""},
             context={},
         )
         ctx = EvaluationContext(request)
@@ -291,9 +291,9 @@ class TestAttributeCondition(object):
     )
     def test_is_satisfied_any_not_in_attribute(self, condition, what, result):
         request = AccessRequest(
-            subject={"attributes": {"what": what}},
-            resource={"attributes": {"name": {"what": ["test_1"]}}},
-            action={},
+            subject={"id":"", "attributes": {"what": what}},
+            resource={"id":"", "attributes": {"name": {"what": ["test_1"]}}},
+            action={"id":""},
             context={},
         )
         ctx = EvaluationContext(request)

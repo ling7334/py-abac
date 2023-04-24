@@ -48,12 +48,12 @@ def test_create():
     }
     request = AccessRequest.from_json(request_json)
     context = EvaluationContext(request)
-    assert context.subject_id == request._subject_id
-    assert context.resource_id == request._resource_id
-    assert context.action_id == request._action_id
+    assert context.subject_id == request.subject_id
+    assert context.resource_id == request.resource_id
+    assert context.action_id == request.action_id
     assert context._other_providers == []
-    assert context.ace is None
-    assert context.attribute_path is None
+    assert not context.ace
+    assert not context.attribute_path
 
     context.ace = "subject"
     context.attribute_path = "$.firstName"

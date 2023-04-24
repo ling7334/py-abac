@@ -140,9 +140,9 @@ class TestAttributeCondition(object):
         (EqualsAttribute(ace="resource", path="$.name.what"), {"test": True}, True),
     ])
     def test_is_satisfied_equals_attribute(self, condition, what, result):
-        request = AccessRequest(subject={"attributes": {"what": what}},
-                                resource={"attributes": {"name": {"what": what}}},
-                                action={}, context={})
+        request = AccessRequest(subject={"id":"", "attributes": {"what": what}},
+                                resource={"id":"", "attributes": {"name": {"what": what}}},
+                                action={"id":""}, context={})
         ctx = EvaluationContext(request)
         ctx.ace = "subject"
         ctx.attribute_path = "$.what"
@@ -156,9 +156,9 @@ class TestAttributeCondition(object):
         (NotEqualsAttribute(ace="resource", path="$.name.what"), {"test": True}, False),
     ])
     def test_is_satisfied_not_equals_attribute(self, condition, what, result):
-        request = AccessRequest(subject={"attributes": {"what": what}},
-                                resource={"attributes": {"name": {"what": what}}},
-                                action={}, context={})
+        request = AccessRequest(subject={"id":"", "attributes": {"what": what}},
+                                resource={"id":"", "attributes": {"name": {"what": what}}},
+                                action={"id":""}, context={})
         ctx = EvaluationContext(request)
         ctx.ace = "subject"
         ctx.attribute_path = "$.what"
@@ -172,9 +172,9 @@ class TestAttributeCondition(object):
         (IsInAttribute(ace="resource", path="$.name.what"), "test", True),
     ])
     def test_is_satisfied_is_in_attribute(self, condition, what, result):
-        request = AccessRequest(subject={"attributes": {"what": what}},
-                                resource={"attributes": {"name": {"what": ["test"]}}},
-                                action={}, context={})
+        request = AccessRequest(subject={"id":"", "attributes": {"what": what}},
+                                resource={"id":"", "attributes": {"name": {"what": ["test"]}}},
+                                action={"id":""}, context={})
         ctx = EvaluationContext(request)
         ctx.ace = "subject"
         ctx.attribute_path = "$.what"
@@ -188,9 +188,9 @@ class TestAttributeCondition(object):
         (IsNotInAttribute(ace="resource", path="$.name.what"), "test", True),
     ])
     def test_is_satisfied_is_not_in_attribute(self, condition, what, result):
-        request = AccessRequest(subject={"attributes": {"what": what}},
-                                resource={"attributes": {"name": {"what": ["test-2"]}}},
-                                action={}, context={})
+        request = AccessRequest(subject={"id":"", "attributes": {"what": what}},
+                                resource={"id":"", "attributes": {"name": {"what": ["test-2"]}}},
+                                action={"id":""}, context={})
         ctx = EvaluationContext(request)
         ctx.ace = "subject"
         ctx.attribute_path = "$.what"
@@ -206,9 +206,9 @@ class TestAttributeCondition(object):
         (AllInAttribute(ace="resource", path="$.name.what"), ["test_1", "test_2"], False),
     ])
     def test_is_satisfied_all_in_attribute(self, condition, what, result):
-        request = AccessRequest(subject={"attributes": {"what": what}},
-                                resource={"attributes": {"name": {"what": ["test_1"]}}},
-                                action={}, context={})
+        request = AccessRequest(subject={"id":"", "attributes": {"what": what}},
+                                resource={"id":"", "attributes": {"name": {"what": ["test_1"]}}},
+                                action={"id":""}, context={})
         ctx = EvaluationContext(request)
         ctx.ace = "subject"
         ctx.attribute_path = "$.what"
@@ -224,9 +224,9 @@ class TestAttributeCondition(object):
         (AllNotInAttribute(ace="resource", path="$.name.what"), ["test_1", "test_2"], True),
     ])
     def test_is_satisfied_all_not_in_attribute(self, condition, what, result):
-        request = AccessRequest(subject={"attributes": {"what": what}},
-                                resource={"attributes": {"name": {"what": ["test_1"]}}},
-                                action={}, context={})
+        request = AccessRequest(subject={"id":"", "attributes": {"what": what}},
+                                resource={"id":"", "attributes": {"name": {"what": ["test_1"]}}},
+                                action={"id":""}, context={})
         ctx = EvaluationContext(request)
         ctx.ace = "subject"
         ctx.attribute_path = "$.what"
@@ -242,9 +242,9 @@ class TestAttributeCondition(object):
         (AnyInAttribute(ace="resource", path="$.name.what"), ["test_1", "test_2"], True),
     ])
     def test_is_satisfied_any_in_attribute(self, condition, what, result):
-        request = AccessRequest(subject={"attributes": {"what": what}},
-                                resource={"attributes": {"name": {"what": ["test_1"]}}},
-                                action={}, context={})
+        request = AccessRequest(subject={"id":"", "attributes": {"what": what}},
+                                resource={"id":"", "attributes": {"name": {"what": ["test_1"]}}},
+                                action={"id":""}, context={})
         ctx = EvaluationContext(request)
         ctx.ace = "subject"
         ctx.attribute_path = "$.what"
@@ -260,9 +260,9 @@ class TestAttributeCondition(object):
         (AnyNotInAttribute(ace="resource", path="$.name.what"), ["test_1", "test_2"], False),
     ])
     def test_is_satisfied_any_not_in_attribute(self, condition, what, result):
-        request = AccessRequest(subject={"attributes": {"what": what}},
-                                resource={"attributes": {"name": {"what": ["test_1"]}}},
-                                action={}, context={})
+        request = AccessRequest(subject={"id":"", "attributes": {"what": what}},
+                                resource={"id":"", "attributes": {"name": {"what": ["test_1"]}}},
+                                action={"id":""}, context={})
         ctx = EvaluationContext(request)
         ctx.ace = "subject"
         ctx.attribute_path = "$.what"

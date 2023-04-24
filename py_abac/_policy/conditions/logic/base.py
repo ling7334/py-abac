@@ -3,7 +3,7 @@
 """
 from typing import List
 
-from pydantic import Field
+from pydantic import Field, validator
 
 from ..base import ConditionBase, ABCMeta
 
@@ -17,3 +17,9 @@ class LogicCondition(ConditionBase, metaclass=ABCMeta):
 
     def is_satisfied(self, ctx) -> bool:
         raise NotImplementedError()
+
+    @validator("values", each_item=True)
+    def list_of_obj(cls, v):
+        if v is None:
+            raise TypeError("item type of values cannot be None")
+        return v

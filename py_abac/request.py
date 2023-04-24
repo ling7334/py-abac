@@ -2,14 +2,14 @@
     Authorization request class
 """
 
-from typing import Dict, Optional
+from typing import Optional
 
-from pydantic import ValidationError
+from pydantic import BaseModel, Field, StrictStr, DictError, validator
 
 from .exceptions import RequestCreateError
 
 
-class AccessRequest(object):
+class AccessRequest(BaseModel):
     """
     Authorization request sent by PEP
 
@@ -37,73 +37,27 @@ class AccessRequest(object):
         request = AccessRequest.from_json(request_json)
     """
 
+    subject_id: StrictStr = Field(max_length=400)
+    subject: dict = Field(default_factory=dict)
+    resource_id: StrictStr = Field(max_length=400)
+    resource: dict = Field(default_factory=dict)
+    action_id: StrictStr = Field(max_length=400)
+    action: dict = Field(default_factory=dict)
+    context: dict = Field(default_factory=dict)
+
     def __init__(self, subject: dict, resource: dict, action: dict, context: Optional[dict] = None):
-        # Request subject identifier
-        self._subject_id = subject.get("id", "")
-        # Request subject attributes
-        self._subject = subject.get("attributes", {})
-
-        # Requested resource identifier
-        self._resource_id = resource.get("id", "")
-        # Requested resource attributes
-        self._resource = resource.get("attributes", {})
-
-        # Request action identifier
-        self._action_id = action.get("id", "")
-        # Request action attributes
-        self._action = action.get("attributes", {})
-
-        # Request context attributes
-        self._context = context or {}
-
-    @property
-    def subject_id(self) -> str:
-        """
-        Request subject identifier
-        """
-        return self._subject_id
-
-    @property
-    def subject(self) -> Dict:
-        """
-        Request subject attributes
-        """
-        return self._subject
-
-    @property
-    def resource_id(self) -> str:
-        """
-        Requested resource identifier
-        """
-        return self._resource_id
-
-    @property
-    def resource(self) -> Dict:
-        """
-        Requested resource attributes
-        """
-        return self._resource
-
-    @property
-    def action_id(self) -> str:
-        """
-        Request action identifier
-        """
-        return self._action_id
-
-    @property
-    def action(self) -> Dict:
-        """
-        Request action attributes
-        """
-        return self._action
-
-    @property
-    def context(self):
-        """
-        Request context attributes
-        """
-        return self._context
+        assert isinstance(subject.get("attributes"), dict) or subject.get("attributes") is None
+        # assert isinstance(resource.get("attributes"), dict) or resource.get("attributes") is None
+        # assert isinstance(action.get("attributes"), dict) or action.get("attributes") is None
+        super().__init__(
+            subject_id=subject.get("id"),
+            subject=subject.get("attributes", {}),
+            resource_id=resource.get("id"),
+            resource=resource.get("attributes", {}),
+            action_id=action.get("id"),
+            action=action.get("attributes", {}),
+            context=context or {},
+        )
 
     @staticmethod
     def from_json(data: dict) -> "AccessRequest":
@@ -112,7 +66,7 @@ class AccessRequest(object):
         """
         try:
             return AccessRequest(**data)
-        except ValidationError as err:
+        except Exception as err:
             raise RequestCreateError(*err.args)
 
 

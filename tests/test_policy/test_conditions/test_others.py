@@ -71,9 +71,9 @@ class TestOtherCondition(object):
     )
     def test_is_satisfied(self, condition, what, result):
         request = AccessRequest(
-            subject={"attributes": {"what": what}},
-            resource={"attributes": {"name": {"what": what}}},
-            action={},
+            subject={"id":"", "attributes": {"what": what}},
+            resource={"id":"", "attributes": {"name": {"what": what}}},
+            action={"id":""},
             context={},
         )
         ctx = EvaluationContext(request)

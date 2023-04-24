@@ -31,16 +31,16 @@ def test_create():
     }
     request = AccessRequest.from_json(request_json)
 
-    assert request_json["subject"]["id"] == request._subject_id
-    assert request_json["resource"]["id"] == request._resource_id
-    assert request_json["action"]["id"] == request._action_id
+    assert request_json["subject"]["id"] == request.subject_id
+    assert request_json["resource"]["id"] == request.resource_id
+    assert request_json["action"]["id"] == request.action_id
 
     # Check backward compatibility
     request = Request.from_json(request_json)
 
-    assert request_json["subject"]["id"] == request._subject_id
-    assert request_json["resource"]["id"] == request._resource_id
-    assert request_json["action"]["id"] == request._action_id
+    assert request_json["subject"]["id"] == request.subject_id
+    assert request_json["resource"]["id"] == request.resource_id
+    assert request_json["action"]["id"] == request.action_id
 
 
 @pytest.mark.parametrize("request_json", [

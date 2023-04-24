@@ -68,7 +68,7 @@ class TestCollectionCondition(object):
         ],
     )
     def test_is_satisfied(self, condition, what, result):
-        request = AccessRequest(subject={"attributes": {"what": what}}, resource={}, action={}, context={})
+        request = AccessRequest(subject={"id":"", "attributes": {"what": what}}, resource={"id":""}, action={"id":""}, context={})
         ctx = EvaluationContext(request)
         ctx.ace = "subject"
         ctx.attribute_path = "$.what"

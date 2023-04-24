@@ -60,9 +60,9 @@ class TestOtherCondition(object):
         (Any(), [1.0, 2.0, "a"], True),
     ])
     def test_is_satisfied(self, condition, what, result):
-        request = AccessRequest(subject={"attributes": {"what": what}},
-                                resource={"attributes": {"name": {"what": what}}},
-                                action={}, context={})
+        request = AccessRequest(subject={"id":"", "attributes": {"what": what}},
+                                resource={"id":"", "attributes": {"name": {"what": what}}},
+                                action={"id":""}, context={})
         ctx = EvaluationContext(request)
         ctx.ace = "subject"
         ctx.attribute_path = "$.what"

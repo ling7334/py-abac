@@ -143,7 +143,7 @@ def test_find_for_target(st, request_json, num):
     st.add(Policy.from_json({"uid": "4", "rules": {}, "targets": {"subject_id": "ab*c"}, "effect": "deny"}))
 
     request = AccessRequest.from_json(request_json)
-    found = st.get_for_target(request._subject_id, request._resource_id, request._action_id)
+    found = st.get_for_target(request.subject_id, request.resource_id, request.action_id)
     found = list(found)
     assert num == len(found)
 
