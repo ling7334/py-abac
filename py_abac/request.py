@@ -4,7 +4,7 @@
 
 from typing import Optional
 
-from pydantic import BaseModel, Field, StrictStr, DictError, validator
+from pydantic import BaseModel, Field, StrictStr, DictError, ValidationError, validator
 
 from .exceptions import RequestCreateError
 
@@ -46,9 +46,8 @@ class AccessRequest(BaseModel):
     context: dict = Field(default_factory=dict)
 
     def __init__(self, subject: dict, resource: dict, action: dict, context: Optional[dict] = None):
-        assert isinstance(subject.get("attributes"), dict) or subject.get("attributes") is None
-        # assert isinstance(resource.get("attributes"), dict) or resource.get("attributes") is None
-        # assert isinstance(action.get("attributes"), dict) or action.get("attributes") is None
+        if not (isinstance(subject.get("attributes"), dict) or subject.get("attributes") is None):
+            raise TypeError("subject_attributes must be dict")
         super().__init__(
             subject_id=subject.get("id"),
             subject=subject.get("attributes", {}),
