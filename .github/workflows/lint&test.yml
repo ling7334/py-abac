@@ -29,11 +29,9 @@ jobs:
           bandit -r py_abac --skip B403,B301
       - name: Unit test with coverage
         run: |
-          pytest --cov-config .coveragerc --cov=./ --cov-report html:htmlcov --cov-append
+          pytest --cov-config .coveragerc --cov=./ --cov-report=xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
-        with:
-          directory: htmlcov
 
     services:
       redis:
