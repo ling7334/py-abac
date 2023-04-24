@@ -1,6 +1,7 @@
 """
     Policy class
 """
+from typing import Union
 
 from .rules import Rules
 from .targets import Targets
@@ -42,7 +43,7 @@ class Policy(BaseModel):
     priority: int = Field(default=0, ge=0)
 
     @classmethod
-    def from_json(cls, data: dict | str) -> "Policy":
+    def from_json(cls, data: Union[dict, str]) -> "Policy":
         """
         Create Policy object from JSON
         """
